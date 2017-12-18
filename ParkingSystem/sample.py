@@ -1,137 +1,195 @@
-glob = []
+park_lot_dict = {}                              ## Dict for entire park information 
+vehicle_type_list = ['BIKE','CAR','VAN','BUS']  ## Default vehicle list
+parked_vehicle = {}                               ## Dict for store vehicle parked vehicle
 
-glist = ['BIKE','CAR','VAN','BUS']
 
-def parkLimit():
+class Parklot():                                ## Class for user level of creating park limits
 
-    level = int(raw_input("enter level"))
-    ls = []      
-    for count_level in range(level):
-        print "enter %r floor data" % count_level
-        vehile = input("how many types of vehicle data you enter ")      
-        for veh in range(vehile):
-            types, count = str(raw_input("Enter your Vechile Type and Count:")).split("-")
-            if types in glist: 
-                samp = (types, count)
-                ls.append(samp)
+
+    def get_level(self):                        ## Get count of floors
     
-        samp = dict(ls)
-        glob.append(samp)
-        print glob
-parkLimit()
+        floor_level = int(raw_input("Enter count of level"))
+        if isinstance(floor_level, int):
+            return floor_level
+        else:
+            print "Level will be integer"
 
+    def get_count_vehicle(self):                ## Get count of types of vehicles
 
-def menu():
-    print("Vehicle Parking System\n")
-    menu_opition = int(input(""" 0-Restrict\n """ +
-                              """1-Non Restrict\n"""))
-    if menu_opition == 0:
-        user = User()
+        vehile_count = int(raw_input("how many types of vehicle ?"))
+        if vehile_count <= 4:
+            return vehile_count
+        else:
+            print "count is high."
+
+    def get_vehicle_info(self):                  ## Get user vehicle information 
+
+        vehicle_types, vehicle_count = str(raw_input("Enter your Vechile Type and Count:")).split("-")
+        vehicle_type = vehicle_types.upper()
+        if vehicle_count >= 1:
+            return vehicle_type, vehicle_count
+        else:
+            print "Count is not correct"
+
+    def park_limit(self, floor_level):          ## Check park limits and correct values append to respond dict
         
-    elif menu_opition == 1:
-        park = Park()
-        
-    else:
-        print "You have pressed the wrong key, please try again"
-        menu()
-
-def park_limits():
-    
-    park_dict = {
-            "BIKE":30,
-            "BUS":5,
-            "CAR":20,
-            "VAN":15,
-            }
-    return park_dict
-
-
-class User():
-
-    def restrict_vehicle(self, park_dict):
-        
-        temp_restrict = park_dict
-        rest_vehicle = str(raw_input("which vehicle type you restrict:"))
-
-        if rest_vehicle in temp_restrict.keys():
-            temp_restrict[rest_vehicle] = None
+        for floor in range(floor_level):
+            user_vehicle_dict = {}
+            print "**%r Floor**" % (floor +1)
+            types_count = self.get_count_vehicle()
             
-            glop.append(temp_restrict)
-            print temp_restrict
-        else:
-            print "This type of vehicle not in your list"
-            restrict_vehicle(temp_restrict)
+            for count in range(types_count):
+                vehicle_type, vehicle_count = self.get_vehicle_info()
+                if vehicle_type in vehicle_type_list: 
+                    user_vehicle_dict[vehicle_type] = int(vehicle_count)
+                else:
+                    print "Your %r vehicle not in list" % vehicle_type
+                    types_count +1
+            park_lot_dict['Floor'+str(floor +1)]= user_vehicle_dict    ## store user entered information to park_lot_dict
 
-        return temp_restrict
-    
 
-    def unrestrict_vehicle(self, park_dict, temp_restrict, rest_vehicle):
-        unrest_vehicle = str(raw_input("which vehicle type you unrestrict:"))
+class Vehicle():                                                    ## Class Vehicle
 
-        if temp_restrict[unrest_vehicle] == None: 
-            temp_restrict[unrest_vehicle] = park_dict[unrest_vehicle]
-            glop.append(temp_restrict)
-        else:
-            print "This type of vehicle you cant unrestrict."
-            menu()
+
+    def get_vehicle_info(self):                                     ## Get parking vehicle inforamtion                            
+        isSuccess = True
+        try:
+            motors_type = str(raw_input("Enter motor type:"))
+            motors_type = motors_type.upper()
+            motors_number = int(raw_input("Enter motor number:"))
+            if motors_type in vehicle_type_list:
+               motor_type = motors_type
+               motor_number = motors_number
+               return motor_type, motor_number, isSuccess
+            else:
+                print "Vehicle type is wrong."
+                isSuccess = False
+                self.get_vehicle_info()
+        except Exception as exception:
+            isSuccess = False
+            template = "An exception of type {0} occurred. Arguments:\n{1!r}"
+            message = template.format(type(exception).__name__, exception.args)
+            print message
+            return isSuccess
             
-        return temp_restrict
+    def park_vehicle(self, motor_type, motor_number):           ## Parking Vehicle
+        try:
+            isSuccess = True
+            for level, level_space in park_lot_dict.items():          
+                if motor_type in level_space.keys():
+                    print "Before Park", park_lot_dict
+                    space = level_space[motor_type]
+                    if space >= 1:
+                        assign = [level, motor_type]
+                        parked_vehicle[motor_number] = assign   ## Assign park slot
+                        level_space[motor_type] = space-1
+                        print "Your %r number:%r park place:%r \n" % (motor_type, motor_number, level)
+                        break
+                    else:
+                        print "No place for park"
+                else:
+                    isSuccess = False
+            print "After Parking", park_lot_dict
+        except Exception as exception:
+            isSuccess = False
+            template = "An exception of type {0} occurred. Arguments:\n{1!r}"
+            message = template.format(type(exception).__name__, exception.args)
+            print message
+        return parked_vehicle, isSuccess
 
-    
-    
-class Park(User):
-
-
-    def get_vehicle_info(self):
-        veh_type = str(raw_input("Enter motor type:"))
-        veh_number = int(raw_input("Enter motor number:"))
-
-        return veh_type, veh_number
-    
-    def park_vehicle(self, get, veh_type, veh_number, data = []):
-        if user in get.keys():
-            size = get[user]
-            if size == 0:
-                print "No place for park"
+    def get_unpark_vehicle(self, parked_vehicle):               ## Get info for exit from park
+        try:
+            isSuccess = True
+            vehicle_number = int(raw_input("Enter motor number:")) ## Parked vehicle number
+            if vehicle_number in parked_vehicle.keys():
+                motor_number = vehicle_number
+                return motor_number, isSuccess
             else:
-                usesss = (user, unum, size)
-                data.append(usesss)
-                get[user] = size-1
-        else:
-            print "This type of vehicle not allowed."
-        return get, data
+                print "This vehicle not in parking lot."
 
-    def unpark_vehicle(get, data):
-        vehnum = int(raw_input("Enter motor number:"))
-        for i in data:
-            if i[1] == vehnum:
-                veh = i[0]
-                get[veh] +=1
-                data.remove(i)
+        except Exception as exception:
+            isSuccess = False
+            template = "An exception of type {0} occurred. Arguments:\n{1!r}"
+            message = template.format(type(exception).__name__, exception.args)
+            print message
+            return isSuccess
+
+    def unpark_vehicle(self, motor_number):                    ## Function for exit from park place     
+        try:
+            isSuccess = True
+            if motor_number in parked_vehicle.keys():
+                park_lot_dict[parked_vehicle[motor_number][0]][parked_vehicle[motor_number][1]] = park_lot_dict[parked_vehicle[motor_number][0]][parked_vehicle[motor_number][1]] + 1
+                del parked_vehicle[motor_number]
+                print "Thanks for parking:) \n"
             else:
-                print "No Vehicle"
-        return data
+                print "This vehicle not in parking lot."
+        except Exception as exception:
+            isSuccess = False
+            template = "An exception of type {0} occurred. Arguments:\n{1!r}"
+            message = template.format(type(exception).__name__, exception.args)
+            print message
+        return isSuccess
 
 if __name__ == "__main__":
-    
-    vehicle_dict = park_limits()
+    park = Parklot()
+    level = park.get_level()
+    park.park_limit(level)
 
-        restrict_option = int(input("""1- Restrict Vechicle"""))
-        user = User()
-        res_dict, vehicle = user.restrict_vehicle(vehicle_dict)
+    wrong_choice = "You Entered wrong key."
+    error_msg = "Your process have an error."
+    success =  True
+    while success:        
+        choice = int(raw_input("""1-Park\n""" +
+                            """2-Un park\n""" +
+                            """3-Exit\n""" +
+                            """Enter your choice:"""))
+        vehicle = Vehicle()
+        if choice == 1:
+            vehicle_type, vehicle_number, is_vehicle_info = vehicle.get_vehicle_info()
+            if is_vehicle_info:
+                parked_info, is_success = vehicle.park_vehicle(vehicle_type, vehicle_number)
+            else:
+                print error_msg
+                break
+        elif choice == 2:
+            parked_vehicle_number, isunpark_vehicle = vehicle.get_unpark_vehicle(parked_info)
+            if isunpark_vehicle:
+                is_success  = vehicle.unpark_vehicle(parked_vehicle_number)
+            else:
+                print error_msg
+                break
+        elif choice == 3:
+            success = False
+            exit()
+
+
+##Output
+##
+##
+##Enter count of level2
+##**1 Floor**
+##how many types of vehicle ?1
+##Enter your Vechile Type and Count:van-1
+##**2 Floor**
+##how many types of vehicle ?1
+##Enter your Vechile Type and Count:car-1
+##1-Park
+##2-Un park
+##3-Exit
+##Enter your choice:1
+##Enter motor type:car
+##Enter motor number:1234
+##{'Floor1': {'VAN': 1}, 'Floor2': {'CAR': 1}}
+##['Floor2', 'CAR']
+##1
+##Your 'CAR' number:1234 park place:'Floor2' 
+##
+##{'Floor1': {'VAN': 1}, 'Floor2': {'CAR': 0}}
+##1-Park
+##2-Un park
+##3-Exit
+##Enter your choice:2
+##Enter motor number:1234
+##Thanks for parking:) 
+##
             
-        park_opition = int(input("""
-1-Park
-2-Un Park
-3-Back"""))
-        if park_opition == 1:
-            park = Park()
-            v_type, v_number = park.get_vehicle_info()
-            park_vehicle(v_type, v_number)
-        if park_opition == 2:
-            unpark_vehicle( )
-
-    else:
-        exit()
-        
-menu() 
