@@ -60,7 +60,7 @@ class Parklot():                                ## Class for user level of creat
             message = template.format(type(exception).__name__, exception.args)
             print message
 
-
+            
 class Vehicle():                                                                ## Class for Vehicle
 
 
@@ -148,9 +148,10 @@ class Vehicle():                                                                
             print message
         return isSuccess
 
-    def view_slot(self):
-        
-        print parked_vehicle
+    def view_slots(self):
+       for vehicle_number, parked_place in parked_vehicle.items():
+           print """%r  %r  %r""" % (parked_place[0], vehicle_number, parked_place[1]) 
+           
         
 
 if __name__ == "__main__":
