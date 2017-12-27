@@ -3,21 +3,19 @@ class Floor:
 
     def __init__(self, floor_no):
         self.floor_no = floor_no
-        self.park = {}
-        self.dict = {}
+        self.slot = {}
+        self.space = {}
         
     def set_slot(self, types, count):
-        self.dict[types] = count
+        self.slot[types] = count
 
     def capacity(self, floor):
-        self.park[floor.floor_no] = self.dict
+        self.space[floor.floor_no] = self.slot
+        return self.space
 
-    def display(self):
-        list = []
-        list.append(self.park)
-        return list
-
-
+    def parked_vehicle(self, floor):
+        return [floor.space]
+    
 floor1 = Floor("floor1")
 floor1.set_slot("Car", 10)
 floor1.set_slot("Bike", 10)
@@ -36,30 +34,60 @@ floor3.set_slot("Car", 10)
 floor3.set_slot("Bike", 10)
 floor3.capacity(floor3)
 
-     
+
 class Vehicles:
 
 
-    def __init__(self, vehicle_number, vehicle_type):
-        self.vehicle_number = vehicle_number 
-        self.vehicle_type = vehicle_type
+    def vehicle_info(self):
+        number = int(raw_input("Enter vehicle number:"))
+        category = str(raw_input("Enter vehicle type:"))
+        return number, category
 
-    def display(self):
-        return self.vehicle_number + " " + self.vehicle_type
-        
+vehicle = Vehicles()
 
-vehicle = Vehicles(int(raw_input("Enter vehicle number:")), str(raw_input("Enter vehicle type:")))
-user_num, user_type = vehicle.display()
+
+class ParkingController():
+
+    def __init__(self):
+        self.list = []
+        self.parked_vehicle = {}
     
-class Parker(Vehicles):
+    def __add__(self, floor):
+        self.list.append(floor)
+
+    def system(self):
+        vehicle_number, vehicle_type = vehicle.vehicle_info()
+        return vehicle_number, vehicle_type
+
+    def park(self, vehicle_number, vehicle_type):
+        for i in self.list:
+            for floor, values in i.items():
+                if vehicle_type in values.keys():
+                    space = values[vehicle_type]
+                    if space >= 1:
+                        assign = [floor, vehicle_number, vehicle_type]
+                        self.parked_vehicle[vehicle_number] = assign
+                        break
+    def display(self):
+        print self.list
+        print self.parked_vehicle
+        return self.list
+
+               
+build = ParkingController()
+build.__add__(floor1.space)
+build.__add__(floor2.space)
+build.__add__(floor3.space)
+
+success = True
+while success:
+    choice = int(raw_input())
+    if choice == 1:
+        v_num, v_type = build.system()
+        build.park(v_num, v_type)
+    elif choice == 2:
+        success = False
+
+build.display()
 
 
-    def add_parklot(self, floor):
-        for key, values in floor.park.items():
-            for key,val in values.items():
-                
-           
-           
-park = Parker()
-park.add_parklot(floor1)
-park.vehicle(user_num, user_type)
