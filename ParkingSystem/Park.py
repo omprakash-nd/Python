@@ -1,93 +1,108 @@
+import random
+
 class Floor:
     
 
     def __init__(self, floor_no):
         self.floor_no = floor_no
-        self.slot = {}
-        self.space = {}
+        self.capacity = {}
+        self.parked_vehicle = {}
         
     def set_slot(self, types, count):
-        self.slot[types] = count
+        self.capacity[types] = count
 
-    def capacity(self, floor):
-        self.space[floor.floor_no] = self.slot
-        return self.space
+    def park(self, vehicle):
+        self.capacity[vehicle.vehicle_type] -= 1
+        self.parked_vehicle[vehicle.vehicle_number] = vehicle.vehicle_type
+        return self.parked_vehicle
 
-    def parked_vehicle(self, floor):
-        return [floor.space]
-    
+    def unpark(self, vehicle):
+        self.capacity[vehicle.vehicle_type] += 1
+        del self.parked_vehicle[vehicle.vehicle_number]
+        return unparked    
+        
+        
+        
 floor1 = Floor("floor1")
 floor1.set_slot("Car", 10)
 floor1.set_slot("Bike", 10)
 floor1.set_slot("Van", 10)
 floor1.set_slot("Bus", 10)
-floor1.capacity(floor1)
 
 floor2 = Floor("floor2")
 floor2.set_slot("Bike", 1)
 floor2.set_slot("Van", 1)
 floor2.set_slot("Car", 1)
-floor2.capacity(floor2)
 
 floor3 = Floor("floor3")
 floor3.set_slot("Car", 10)
 floor3.set_slot("Bike", 10)
-floor3.capacity(floor3)
 
 
 class Vehicles:
 
 
-    def vehicle_info(self):
-        number = int(raw_input("Enter vehicle number:"))
-        category = str(raw_input("Enter vehicle type:"))
-        return number, category
+    def vehicle_info(self, number, category):
+        self.number = number
+        self.catagory = category
+        return self.number, self.category
 
 vehicle = Vehicles()
 
 
 class ParkingController():
-
+    
     def __init__(self):
         self.list = []
-        self.parked_vehicle = {}
-    
-    def __add__(self, floor):
-        self.list.append(floor)
 
-    def system(self):
-        vehicle_number, vehicle_type = vehicle.vehicle_info()
-        return vehicle_number, vehicle_type
+    def check_floor_space(self, floor, Success):
+        if self.vehicle in floor.capacity:
+            if floor.capacity[self.vehicle] > 0:
+                self.list.append(floor)
+                Success = True
+            else:
+                Success = False 
+        else:
+            print "This type of vehicle not allowed"
+        return Success
 
-    def park(self, vehicle_number, vehicle_type):
-        for i in self.list:
-            for floor, values in i.items():
-                if vehicle_type in values.keys():
-                    space = values[vehicle_type]
-                    if space >= 1:
-                        assign = [floor, vehicle_number, vehicle_type]
-                        self.parked_vehicle[vehicle_number] = assign
-                        break
-    def display(self):
-        print self.list
-        print self.parked_vehicle
-        return self.list
+    def check_vehicle_number(self, floor, Success):
+        if number in floor.parked_vehicle.keys():
+            Success = True
+        else:
+            Success = False
+        return Success
 
-               
+    def vehicle_info(self):
+        self.vehicle = str(raw_input("Enter vehicle type:"))
+        number = int(raw_input("Enter vehicle number:"))
+        return self.vehicle, number
+
+    def display(self, floor):
+        print "\tFloor:",floor.floor_no
+        print "\tParked vehicles:%r" %floor.parked_vehicle
+
 build = ParkingController()
-build.__add__(floor1.space)
-build.__add__(floor2.space)
-build.__add__(floor3.space)
+build.__add__(floor1)
+build.__add__(floor2)
+build.__add__(floor3)
 
 success = True
 while success:
-    choice = int(raw_input())
+    choice = int(raw_input(""" 1.Park\n 2.Unpark\n 3.Search Vehicles\n 4.Exit\n Enter your choice:"""))
     if choice == 1:
-        v_num, v_type = build.system()
-        build.park(v_num, v_type)
+        v_num, v_type = build.visitor_vehicle()
+        ticket, park_info = build.park(v_num, v_type)
+        build.display(ticket, park_info)
+
     elif choice == 2:
-        success = False
+        build.unpark()
+    
+    elif choice == 3:
+        ticket, park_info = build.search_vehicle()
+        build.display(ticket, park_info)
 
-build.display()
-
+    elif choice == 4:
+        success == False
+        exit()
 
