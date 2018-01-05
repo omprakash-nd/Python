@@ -59,7 +59,7 @@ class ParkingController():
             floor = self.list[index]
             if vehicle.vehicle_type in floor.capacity:
                 if floor.capacity[vehicle.vehicle_type] > 0:
-                    space = "Parked"
+                    space = "Space Available"
                     issuccess = True
                     break
                 else:
