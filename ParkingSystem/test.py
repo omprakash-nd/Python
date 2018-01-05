@@ -1,6 +1,6 @@
 import unittest
 from Floor import Floor
-from Vehicle import Vehicles
+from Vehicle import Vehicle
 from ParkController import ParkingController
 
 class TestParkApplication(unittest.TestCase):
